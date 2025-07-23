@@ -1,253 +1,849 @@
-# Playable Factory Seller Panel
+# Playable Factory E-Commerce Platform
 
-A modern, responsive seller management dashboard built with Next.js, TypeScript, and Tailwind CSS. This application provides sellers with comprehensive tools to manage their products, orders, campaigns, and profile information.
+## 📋 Project Description
 
-## 🚀 Features
+Playable Factory is a comprehensive platform designed to meet modern e-commerce needs. This monorepo provides a complete ecosystem where sellers can manage their products, customers can shop, and admins can control the platform.
 
-### Core Features
-- **Product Management**: Create, edit, delete, and manage product listings with images, variants, and specifications
-- **Order Management**: View and manage customer orders with status updates and tracking information
-- **Campaign Management**: Create and manage promotional campaigns with discount settings
-- **Profile Management**: Complete seller profile setup with business hours and social media links
-- **Dashboard Analytics**: Real-time statistics and performance metrics
-- **Authentication**: Secure login/logout with email verification and password reset
+### 🎯 Main Features
 
-### Advanced Features
-- **Bulk Operations**: Select and perform bulk actions on products
-- **Image Upload**: Drag-and-drop image upload with preview
-- **Real-time Updates**: Live status updates and notifications
-- **Responsive Design**: Mobile-first design that works on all devices
-- **Dark Mode Support**: Built-in dark/light theme switching
-- **Search & Filtering**: Advanced search and filtering capabilities
-- **Export/Import**: Product data export and import functionality
+- **Multi-Role Authentication**: Admin, Seller, and Customer roles
+- **Product Management**: Image upload, category system, stock tracking
+- **Order System**: Cart management, payment, delivery tracking
+- **Campaign System**: Platform and seller campaigns
+- **Recommendation System**: AI-based personalized recommendations
+- **Admin Panel**: Platform management and moderation
+- **Seller Panel**: Comprehensive dashboard for sellers
+- **Customer Interface**: Modern shopping experience
 
-## 🛠 Technology Stack
+## 🏗️ System Architecture
 
-### Frontend
-- **Next.js 15.4.2** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Hook Form** - Form handling with validation
-- **Zod** - Schema validation
-- **Redux Toolkit** - State management
-- **Lucide React** - Icon library
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Admin Panel   │    │  Frontend (FE)  │    │ Seller Panel    │
+│   (Next.js)     │    │   (Next.js)     │    │   (Next.js)     │
+│   Port: 8000    │    │   Port: 8001    │    │   Port: 8002    │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌─────────────▼─────────────┐
+                    │    Backend API (BE)       │
+                    │      (NestJS)             │
+                    │      Port: 8003           │
+                    └─────────────┬─────────────┘
+                                  │
+                    ┌─────────────▼─────────────┐
+                    │      MongoDB + Redis      │
+                    │        + MinIO           │
+                    │   Ports: 27017, 6379     │
+                    └───────────────────────────┘
+```
 
-### UI Components
-- **shadcn/ui** - Modern component library
-- **Radix UI** - Accessible component primitives
-- **Sonner** - Toast notifications
+## 🗄️ Database Schema
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Yarn** - Package manager
+### Users Collection
+```javascript
+{
+  _id: ObjectId,
+  email: String (unique, required),
+  password: String (hashed, required),
+  firstName: String (required),
+  lastName: String (required),
+  role: String (enum: ['ADMIN', 'SELLER', 'CUSTOMER'], required),
+  isActive: Boolean (default: true),
+  isEmailVerified: Boolean (default: false),
+  profileImage: String,
+  phone: String,
+  addresses: [{
+    _id: ObjectId,
+    type: String (enum: ['HOME', 'WORK', 'OTHER']),
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: String,
+    isDefault: Boolean
+  }],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-## 📋 Prerequisites
+### Categories Collection
+```javascript
+{
+  _id: ObjectId,
+  name: String (required),
+  description: String,
+  imageUrl: String,
+  parentId: ObjectId (ref: 'Category'),
+  isActive: Boolean (default: true),
+  order: Number,
+  productCount: Number (default: 0),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-Before running this project, make sure you have:
+### Products Collection
+```javascript
+{
+  _id: ObjectId,
+  name: String (required),
+  description: String,
+  price: Number (required),
+  discountedPrice: Number,
+  categoryId: ObjectId (ref: 'Category', required),
+  sellerId: ObjectId (ref: 'User', required),
+  images: [String],
+  stock: Number (default: 0),
+  isActive: Boolean (default: true),
+  isFeatured: Boolean (default: false),
+  tags: [String],
+  specifications: [{
+    key: String,
+    value: String
+  }],
+  viewCount: Number (default: 0),
+  averageRating: Number (default: 0),
+  reviewCount: Number (default: 0),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-- **Node.js** 18.17 or higher
-- **Yarn** package manager
-- Modern web browser (Chrome, Firefox, Safari, Edge)
+### Campaigns Collection
+```javascript
+{
+  _id: ObjectId,
+  name: String (required),
+  description: String,
+  type: String (enum: ['PLATFORM', 'SELLER'], required),
+  discountType: String (enum: ['PERCENTAGE', 'FIXED'], required),
+  discountValue: Number (required),
+  startDate: Date (required),
+  endDate: Date (required),
+  isActive: Boolean (default: true),
+  sellerId: ObjectId (ref: 'User'), // null for platform campaigns
+  applicableProducts: [ObjectId], // Product IDs
+  applicableCategories: [ObjectId], // Category IDs
+  minOrderAmount: Number,
+  maxDiscountAmount: Number,
+  usageLimit: Number,
+  usedCount: Number (default: 0),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-## 🚀 Installation
+### Orders Collection
+```javascript
+{
+  _id: ObjectId,
+  customerId: ObjectId (ref: 'User', required),
+  items: [{
+    productId: ObjectId (ref: 'Product', required),
+    quantity: Number (required),
+    price: Number (required),
+    discountedPrice: Number,
+    sellerId: ObjectId (ref: 'User', required)
+  }],
+  status: String (enum: ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'], default: 'PENDING'),
+  subtotal: Number (required),
+  totalDiscount: Number (default: 0),
+  shippingCost: Number (default: 0),
+  total: Number (required),
+  shippingAddress: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: String
+  },
+  billingAddress: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: String
+  },
+  appliedCampaigns: [{
+    campaignId: ObjectId (ref: 'Campaign'),
+    discountAmount: Number
+  }],
+  paymentMethod: String,
+  paymentStatus: String (enum: ['PENDING', 'PAID', 'FAILED'], default: 'PENDING'),
+  notes: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Reviews Collection
+```javascript
+{
+  _id: ObjectId,
+  productId: ObjectId (ref: 'Product', required),
+  customerId: ObjectId (ref: 'User', required),
+  orderId: ObjectId (ref: 'Order', required),
+  rating: Number (min: 1, max: 5, required),
+  title: String,
+  comment: String,
+  images: [String],
+  isApproved: Boolean (default: true),
+  helpfulCount: Number (default: 0),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Cart Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: 'User', required),
+  items: [{
+    productId: ObjectId (ref: 'Product', required),
+    quantity: Number (required),
+    addedAt: Date
+  }],
+  appliedCampaigns: [{
+    campaignId: ObjectId (ref: 'Campaign'),
+    discountAmount: Number
+  }],
+  updatedAt: Date
+}
+```
+
+### Wishlist Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: 'User', required),
+  productId: ObjectId (ref: 'Product', required),
+  addedAt: Date
+}
+```
+
+### BlacklistedTokens Collection
+```javascript
+{
+  _id: ObjectId,
+  token: String (required),
+  expiresAt: Date (required),
+  createdAt: Date
+}
+```
+
+## 🚀 Installation Instructions
+
+### Prerequisites
+
+- **Node.js** 18.17.0 or higher
+- **npm** 9.0.0 or higher
+- **MongoDB** 5.0 or higher
+- **Redis** 6.0 or higher
+- **MinIO** (for file storage)
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
-cd playable_factory_seller
+cd monorepo
 ```
 
-### 2. Install Dependencies
+### 2. Backend API Setup
+
 ```bash
-yarn install
+cd playable_factory_be
+npm install
 ```
 
-### 3. Environment Setup
-Create a `.env.local` file in the root directory:
+#### Backend Environment Variables (.env)
+
+```env
+# Application
+NODE_ENV=development
+PORT=8003
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/playable_factory
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=your-refresh-token-secret-change-in-production
+JWT_REFRESH_EXPIRES_IN=30d
+
+# MinIO Configuration
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=your-access-key
+MINIO_SECRET_KEY=your-secret-key
+MINIO_BUCKET_NAME=playable-factory
+MINIO_USE_SSL=false
+
+# Email (optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# CORS
+CORS_ORIGIN=http://localhost:8000,http://localhost:8001,http://localhost:8002
+```
+
+### 3. Admin Panel Setup
+
+```bash
+cd ../playable_factory_admin
+npm install
+```
+
+#### Admin Panel Environment Variables (.env.local)
 
 ```env
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8003/api
+NEXT_PUBLIC_API_TIMEOUT=10000
 
 # Authentication
-NEXT_PUBLIC_TOKEN_COOKIE_NAME=accessToken
-NEXT_PUBLIC_REFRESH_TOKEN_COOKIE_NAME=refreshToken
-NEXT_PUBLIC_TOKEN_EXPIRES_IN=7
-NEXT_PUBLIC_COOKIE_DOMAIN=localhost
-NEXT_PUBLIC_COOKIE_SECURE=false
-NEXT_PUBLIC_COOKIE_SAME_SITE=lax
+NEXT_PUBLIC_JWT_SECRET=your-jwt-secret-key
+NEXT_PUBLIC_REFRESH_TOKEN_SECRET=your-refresh-token-secret
+
+# Application
+NEXT_PUBLIC_APP_NAME=Playable Factory Admin
+NEXT_PUBLIC_APP_VERSION=1.0.0
+
+# Development
+NODE_ENV=development
 ```
 
-### 4. Start Development Server
+### 4. Frontend (Customer) Setup
+
 ```bash
-yarn dev
+cd ../playable_factory_fe
+npm install
 ```
 
-The application will be available at `http://localhost:3000`
+#### Frontend Environment Variables (.env.local)
 
-## 👤 Demo Credentials
+```env
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8003/api
+NEXT_PUBLIC_API_TIMEOUT=10000
 
-### Seller Account
-```
-Email: seller@example.com
-Password: password123
-```
+# Authentication
+NEXT_PUBLIC_JWT_SECRET=your-jwt-secret-key
+NEXT_PUBLIC_REFRESH_TOKEN_SECRET=your-refresh-token-secret
 
-### Test Features
-- **Email Verification**: Use code `1234` for testing
-- **Password Reset**: Use code `1234` for testing
-- **All API endpoints**: Mock data for demonstration
+# Application
+NEXT_PUBLIC_APP_NAME=Playable Factory
+NEXT_PUBLIC_APP_VERSION=1.0.0
 
-## 📚 API Documentation
-
-### Authentication Endpoints
-```
-POST /auth/login - Seller login
-POST /auth/logout - Seller logout
-POST /auth/forgot-password - Request password reset
-POST /auth/reset-password - Reset password
-GET /auth/verify-email - Verify email address
-GET /auth/user-info - Get user profile
-POST /auth/refresh - Refresh access token
+# Development
+NODE_ENV=development
 ```
 
-### Product Management
-```
-GET /seller/products - Get product list
-POST /seller/products - Create new product
-GET /seller/products/:id - Get product details
-PUT /seller/products/:id - Update product
-DELETE /seller/products/:id - Delete product
-PUT /seller/products/:id/toggle-status - Toggle product status
-POST /seller/products/:id/upload-image - Upload product image
-DELETE /seller/products/:id/images/:imageKey - Delete product image
-POST /seller/products/import - Import products from file
-GET /seller/products/export - Export products data
+### 5. Seller Panel Setup
+
+```bash
+cd ../playable_factory_seller
+npm install
 ```
 
-### Order Management
-```
-GET /seller/orders - Get order list
-GET /seller/orders/:id - Get order details
-PUT /seller/orders/:id/status - Update order status
-PUT /seller/orders/:id/notes - Update order notes
-GET /seller/orders/attention/required - Get orders requiring attention
-GET /seller/orders/analytics/revenue - Get revenue analytics
+#### Seller Panel Environment Variables (.env.local)
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8003/api
+NEXT_PUBLIC_API_TIMEOUT=10000
+
+# Authentication
+NEXT_PUBLIC_JWT_SECRET=your-jwt-secret-key
+NEXT_PUBLIC_REFRESH_TOKEN_SECRET=your-refresh-token-secret
+
+# Application
+NEXT_PUBLIC_APP_NAME=Playable Factory Seller
+NEXT_PUBLIC_APP_VERSION=1.0.0
+
+# Development
+NODE_ENV=development
 ```
 
-### Campaign Management
-```
-GET /seller/campaigns - Get campaign list
-POST /seller/campaigns - Create new campaign
-GET /seller/campaigns/:id - Get campaign details
-PUT /seller/campaigns/:id - Update campaign
-DELETE /seller/campaigns/:id - Delete campaign
-PUT /seller/campaigns/:id/toggle-status - Toggle campaign status
-POST /seller/campaigns/:id/image - Upload campaign image
+## 🗄️ Database Setup
+
+### MongoDB Setup
+
+#### macOS (Homebrew)
+```bash
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
 ```
 
-### Profile Management
-```
-GET /seller/profile - Get seller profile
-PUT /seller/profile - Update seller profile
-POST /seller/profile/logo - Upload logo
-DELETE /seller/profile/logo - Delete logo
-PUT /seller/profile/toggle-active - Toggle profile status
+#### MongoDB with Docker
+```bash
+docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
-### Dashboard Analytics
-```
-GET /seller/dashboard/stats - Get dashboard statistics
-GET /seller/dashboard/activities - Get recent activities
-GET /seller/dashboard/charts - Get chart data
-GET /seller/dashboard/performance - Get performance metrics
+### Redis Setup
+
+#### macOS (Homebrew)
+```bash
+brew install redis
+brew services start redis
 ```
 
-## 🏗 Project Structure
+#### Redis with Docker
+```bash
+docker run -d -p 6379:6379 --name redis redis:latest
+```
 
+### MinIO Setup
+
+#### MinIO with Docker
+```bash
+docker run -d -p 9000:9000 -p 9001:9001 --name minio \
+  -e "MINIO_ROOT_USER=your-access-key" \
+  -e "MINIO_ROOT_PASSWORD=your-secret-key" \
+  minio/minio server /data --console-address ":9001"
 ```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Authentication pages
-│   └── (dashboard)/       # Dashboard pages
-├── components/            # Reusable UI components
-│   ├── auth/             # Authentication components
-│   ├── campaigns/        # Campaign management components
-│   ├── layout/           # Layout components
-│   ├── orders/           # Order management components
-│   ├── products/         # Product management components
-│   ├── profile/          # Profile management components
-│   └── ui/               # Base UI components
-├── features/             # Redux slices and state management
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility libraries and configurations
-├── services/             # API service functions
-├── store/                # Redux store configuration
-├── types/                # TypeScript type definitions
-└── utils/                # Utility functions and validations
+
+## 🚀 Running the Application
+
+### 1. Start Backend API
+
+```bash
+cd playable_factory_be
+npm run start:dev
 ```
+
+Backend API will run at `http://localhost:3003`.
+
+### 2. Start Admin Panel
+
+```bash
+cd ../playable_factory_admin
+npm run dev
+```
+
+Admin Panel will run at `http://localhost:3000`.
+
+### 3. Start Frontend (Customer) Application
+
+```bash
+cd ../playable_factory_fe
+npm run dev
+```
+
+Frontend application will run at `http://localhost:3001`.
+
+### 4. Start Seller Panel
+
+```bash
+cd ../playable_factory_seller
+npm run dev
+```
+
+Seller Panel will run at `http://localhost:3002`.
+
+## 🗃️ Database Seeding
+
+### Load Demo Data
+
+Run the seeding script in the backend folder:
+
+```bash
+cd playable_factory_be
+npm run seed
+```
+
+### Demo Users
+
+#### Admin User
+```
+Email: admin@playablefactory.com
+Password: admin123
+Role: ADMIN
+```
+
+#### Seller User
+```
+Email: seller@playablefactory.com
+Password: seller123
+Role: SELLER
+```
+
+#### Customer User
+```
+Email: customer@playablefactory.com
+Password: customer123
+Role: CUSTOMER
+```
+
+## 📋 Features List
+
+### 🔐 Authentication and Security
+
+#### ✅ Core Features
+- JWT-based authentication
+- Refresh token support
+- Multi-role system (Admin, Seller, Customer)
+- Password hashing (bcrypt)
+- Email verification
+- Password reset
+- Session management
+- CORS configuration
+
+#### ✅ Security Features
+- Rate limiting
+- Input validation (Zod)
+- SQL injection protection
+- XSS protection
+- CSRF protection
+- Secure file upload
+
+### 👥 User Management
+
+#### ✅ Admin Features
+- User list viewing
+- User details and profile management
+- User status control (active/inactive)
+- Role-based authorization
+- User search and filtering
+- Bulk user operations
+
+#### ✅ Seller Features
+- Seller profile management
+- Seller approval processes
+- Seller performance tracking
+- Seller account status management
+- Seller statistics
+
+#### ✅ Customer Features
+- Profile management
+- Address management
+- Order history
+- Wishlist management
+- Review history
+
+### 🛍️ Product Management
+
+#### ✅ Core Features
+- Product CRUD operations
+- Category system
+- Product image upload (MinIO)
+- Stock tracking
+- Price management
+- Discount system
+
+#### ✅ Advanced Features
+- Product variants
+- Product specifications
+- Product tags
+- Product search and filtering
+- Product reviews
+- Product view count
+
+### 📢 Campaign System
+
+#### ✅ Platform Campaigns
+- Platform-level campaign creation
+- Category-based campaigns
+- Product-based campaigns
+- Date-based activation
+- Usage limits
+
+#### ✅ Seller Campaigns
+- Seller-specific campaigns
+- Seller campaign management
+- Campaign performance tracking
+- Campaign status control
+
+### 🛒 Order System
+
+#### ✅ Cart Management
+- Add/remove items from cart
+- Cart updates
+- Cart clearing
+- Campaign application
+- Cart calculations
+
+#### ✅ Order Processing
+- Order creation
+- Order status tracking
+- Delivery address management
+- Billing address management
+- Order notes
+
+#### ✅ Payment System
+- Payment method selection
+- Payment status tracking
+- Invoice generation
+- Return processing
+
+### 📊 Dashboard and Analytics
+
+#### ✅ Admin Dashboard
+- System health metrics
+- User statistics
+- Sales statistics
+- Platform performance
+- Recent activities
+
+#### ✅ Seller Dashboard
+- Seller performance metrics
+- Product sales statistics
+- Order analytics
+- Revenue reports
+- Customer analytics
+
+#### ✅ Customer Dashboard
+- Order tracking
+- Favorite products
+- Shopping history
+- Address management
+
+### 🔍 Search and Recommendations
+
+#### ✅ Search System
+- Product search
+- Category-based search
+- Price range filtering
+- Seller-based filtering
+- Advanced filtering
+
+#### ✅ Recommendation System
+- Personalized recommendations
+- Popular products
+- Frequently bought together
+- Category recommendations
+- Redis-based caching
+
+### 📱 User Interface
+
+#### ✅ Admin Panel
+- Modern dashboard design
+- Responsive design
+- Dark/light theme
+- Toast notifications
+- Loading indicators
+
+#### ✅ Seller Panel
+- Seller-focused dashboard
+- Product management interface
+- Order management
+- Campaign management
+- Profile management
+
+#### ✅ Customer Interface
+- Modern shopping experience
+- Product detail pages
+- Cart management
+- Order tracking
+- Review system
+
+### 🗄️ File Management
+
+#### ✅ MinIO Integration
+- Image upload
+- File storage
+- Secure file access
+- Presigned URLs
+- Automatic file cleanup
+
+### 📧 Notification System
+
+#### ✅ Email Notifications
+- Registration confirmation
+- Password reset
+- Order status updates
+- Campaign notifications
+
+### 🔧 Developer Tools
+
+#### ✅ Code Quality
+- ESLint configuration
+- Prettier formatting
+- TypeScript type checking
+- JSDoc documentation
+
+#### ✅ Testing Tools
+- Unit tests
+- E2E tests
+- Test coverage
+- Mock data
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+### Production Environment Variables
 
-### Manual Deployment
-1. Build the application:
-   ```bash
-   yarn build
-   ```
-
-2. Start production server:
-   ```bash
-   yarn start
-   ```
-
-### Environment Variables for Production
+#### Backend (.env)
 ```env
-NEXT_PUBLIC_API_URL=https://your-api-domain.com
-NEXT_PUBLIC_COOKIE_DOMAIN=your-domain.com
-NEXT_PUBLIC_COOKIE_SECURE=true
+NODE_ENV=production
+PORT=3003
+MONGODB_URI=mongodb://your-production-mongodb-uri
+REDIS_HOST=your-redis-host
+REDIS_PORT=6379
+JWT_SECRET=your-production-jwt-secret
+JWT_REFRESH_SECRET=your-production-refresh-secret
+MINIO_ENDPOINT=your-minio-endpoint
+MINIO_ACCESS_KEY=your-production-access-key
+MINIO_SECRET_KEY=your-production-secret-key
+MINIO_BUCKET_NAME=playable-factory-prod
+MINIO_USE_SSL=true
+CORS_ORIGIN=https://your-domain.com
+```
+
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com/api
+NEXT_PUBLIC_APP_NAME=Playable Factory
+NEXT_PUBLIC_APP_VERSION=1.0.0
+NODE_ENV=production
+```
+
+### Docker Deployment
+
+#### Backend Dockerfile
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3003
+
+CMD ["npm", "run", "start:prod"]
+```
+
+#### Frontend Dockerfile
+```dockerfile
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+```
+
+### PM2 Deployment
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start Backend
+pm2 start dist/main.js --name "playable-factory-api"
+
+# Start Frontends
+pm2 start npm --name "admin-panel" -- run start
+pm2 start npm --name "frontend" -- run start
+pm2 start npm --name "seller-panel" -- run start
+
+# Save PM2 configuration
+pm2 save
+pm2 startup
 ```
 
 ## 🧪 Testing
 
-### Run Linting
+### Backend Tests
 ```bash
-yarn lint
+cd playable_factory_be
+npm run test
+npm run test:e2e
+npm run test:cov
 ```
 
-### Run Type Checking
+### Frontend Tests
 ```bash
-yarn type-check
+cd ../playable_factory_admin
+npm run test
+
+cd ../playable_factory_fe
+npm run test
+
+cd ../playable_factory_seller
+npm run test
 ```
 
-### Build for Production
+### Linting
 ```bash
-yarn build
+# Backend
+cd playable_factory_be
+npm run lint
+npm run lint:fix
+
+# Frontends
+cd ../playable_factory_admin
+npm run lint
+
+cd ../playable_factory_fe
+npm run lint
+
+cd ../playable_factory_seller
+npm run lint
 ```
 
-## 📝 Development Guidelines
+## 📚 API Documentation
 
-### Code Style
-- Use TypeScript for all new code
-- Follow ESLint configuration
-- Use Prettier for code formatting
-- Write JSDoc comments for functions and components
+### Authentication Endpoints
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh` - Token refresh
+- `POST /api/auth/forgot-password` - Password reset request
+- `POST /api/auth/reset-password` - Password reset
+- `GET /api/auth/profile` - User profile
 
-### Component Structure
-- Use functional components with hooks
-- Implement proper error boundaries
-- Follow accessibility guidelines
-- Use shadcn/ui components when possible
+### Product Endpoints
+- `GET /api/products` - Product list
+- `GET /api/products/:id` - Product details
+- `POST /api/seller/products` - Create product
+- `PUT /api/seller/products/:id` - Update product
+- `DELETE /api/seller/products/:id` - Delete product
 
-### State Management
-- Use Redux Toolkit for global state
-- Use React Hook Form for form state
-- Use local state for component-specific data
+### Order Endpoints
+- `GET /api/orders` - Order list
+- `GET /api/orders/:id` - Order details
+- `POST /api/orders` - Create order
+- `PUT /api/seller/orders/:id/status` - Update order status
+
+### Campaign Endpoints
+- `GET /api/campaigns` - Campaign list
+- `POST /api/seller/campaigns` - Create campaign
+- `PUT /api/seller/campaigns/:id` - Update campaign
+- `DELETE /api/seller/campaigns/:id` - Delete campaign
+
+### Admin Endpoints
+- `GET /api/admin/users` - User management
+- `GET /api/admin/sellers` - Seller management
+- `GET /api/admin/products` - Product moderation
+- `GET /api/admin/orders` - Order management
+- `GET /api/admin/dashboard` - Dashboard statistics
 
 ## 🤝 Contributing
 
@@ -259,21 +855,14 @@ yarn build
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🆘 Support
+## 📞 Contact
 
-For support and questions:
-- Create an issue in the GitHub repository
-- Contact the development team
-- Check the documentation for common issues
-
-## 🔄 Version History
-
-- **v1.0.0** - Initial release with core seller management features
-- **v1.1.0** - Added campaign management and advanced analytics
-- **v1.2.0** - Enhanced UI/UX and performance improvements
+- **Email**: admin@playablefactory.com
+- **Website**: https://playablefactory.com
+- **Documentation**: https://docs.playablefactory.com
 
 ---
 
-**Note**: This is a seller-focused application. For customer-facing features, see the main Playable Factory application. 
+**Note**: This platform is for educational and development purposes only. Please review security measures and make necessary updates before using in production environment. 
