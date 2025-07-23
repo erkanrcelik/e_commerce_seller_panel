@@ -3,37 +3,37 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { type Order } from '@/services';
 import {
-    AlertCircle,
-    Eye,
-    MoreHorizontal,
-    Package,
-    ShoppingCart,
-    Truck,
-    X,
+  AlertCircle,
+  Eye,
+  MoreHorizontal,
+  Package,
+  ShoppingCart,
+  Truck,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -45,6 +45,12 @@ interface OrderTableProps {
   orders: Order[];
   /** Loading state */
   loading: boolean;
+  /** Current page number */
+  currentPage: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Function to handle page change */
+  onPageChange: (page: number) => void;
 }
 
 /**

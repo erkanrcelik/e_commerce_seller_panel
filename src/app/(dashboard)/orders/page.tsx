@@ -149,6 +149,9 @@ export default function OrdersPage() {
       <OrderTable
         orders={orders}
         loading={loading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
       />
 
       {/* Pagination */}
