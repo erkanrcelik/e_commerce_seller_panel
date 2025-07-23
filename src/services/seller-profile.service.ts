@@ -1,8 +1,8 @@
 import api from '@/lib/axios';
 import type {
-    LogoUploadResponse,
-    SellerProfile,
-    UpdateProfileData
+  LogoUploadResponse,
+  SellerProfile,
+  UpdateProfileData
 } from '@/types/seller-profile';
 
 /**
@@ -19,7 +19,7 @@ export class ProfileService {
       const response = await api.get<SellerProfile>('/seller/profile');
       return response.data;
     } catch (error) {
-      console.error('Get profile API error:', error);
+      console.error('Error fetching seller profile:', error);
       throw error;
     }
   }
@@ -34,7 +34,7 @@ export class ProfileService {
       const response = await api.put<SellerProfile>('/seller/profile', profileData);
       return response.data;
     } catch (error) {
-      console.error('Update profile API error:', error);
+      console.error('Error updating seller profile:', error);
       throw error;
     }
   }
@@ -60,7 +60,7 @@ export class ProfileService {
       );
       return response.data;
     } catch (error) {
-      console.error('Upload logo API error:', error);
+      console.error('Error uploading logo:', error);
       throw error;
     }
   }
@@ -74,7 +74,7 @@ export class ProfileService {
       const response = await api.delete<{ message: string }>('/seller/profile/logo');
       return response.data;
     } catch (error) {
-      console.error('Delete logo API error:', error);
+      console.error('Error deleting logo:', error);
       throw error;
     }
   }
@@ -88,7 +88,7 @@ export class ProfileService {
       const response = await api.put<SellerProfile>('/seller/profile/toggle-active');
       return response.data;
     } catch (error) {
-      console.error('Toggle profile active status API error:', error);
+      console.error('Error toggling profile active status:', error);
       throw error;
     }
   }
@@ -103,7 +103,7 @@ export class ProfileService {
       const response = await api.get<SellerProfile>(`/seller/profile/public/${sellerId}`);
       return response.data;
     } catch (error) {
-      console.error('Get public profile API error:', error);
+      console.error(`Error fetching public profile for seller ${sellerId}:`, error);
       throw error;
     }
   }

@@ -29,7 +29,7 @@ export default tseslint.config(
   },
   {
     rules: {
-      // Otomatik düzeltilebilir kurallar
+      // Auto-fixable rules
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
@@ -41,11 +41,11 @@ export default tseslint.config(
       '@typescript-eslint/prefer-promise-reject-errors': 'warn',
       '@typescript-eslint/no-unused-vars': 'error',
       
-      // Geliştirme için esnek kurallar
-      'no-unused-vars': 'off', // TypeScript versiyonunu kullan
+      // Flexible rules for development
+      'no-unused-vars': 'off', // Use TypeScript version
       'prefer-const': 'error',
       'no-var': 'error',
-      'no-console': 'off', // Geliştirme için console.log'a izin ver
+      'no-console': 'off', // Allow console.log for development
       'no-debugger': 'error',
       'no-alert': 'off',
       'no-eval': 'error',
@@ -61,7 +61,7 @@ export default tseslint.config(
       'no-useless-concat': 'error',
       'no-useless-return': 'error',
       'prefer-promise-reject-errors': 'error',
-      'require-await': 'off', // Async fonksiyonlar için esnek
+      'require-await': 'off', // Flexible for async functions
       'yoda': 'error',
     },
   },

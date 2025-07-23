@@ -16,6 +16,7 @@ import {
     Phone,
     Twitter,
 } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * Profile info card component props
@@ -71,14 +72,14 @@ export function ProfileInfoCard({ profile }: ProfileInfoCardProps) {
               <div className="font-medium">Website</div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Globe className="w-4 h-4" />
-                <a 
+                <Link 
                   href={profile.website} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
                 >
                   {profile.website}
-                </a>
+                </Link>
               </div>
             </div>
           )}
@@ -189,14 +190,14 @@ export function ProfileInfoCard({ profile }: ProfileInfoCardProps) {
                   <div className="font-medium">Instagram</div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Instagram className="w-4 h-4" />
-                    <a 
+                    <Link 
                       href={profile.socialMedia.instagram} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
                       {profile.socialMedia.instagram}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -206,14 +207,14 @@ export function ProfileInfoCard({ profile }: ProfileInfoCardProps) {
                   <div className="font-medium">Twitter</div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Twitter className="w-4 h-4" />
-                    <a 
+                    <Link 
                       href={profile.socialMedia.twitter} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
                       {profile.socialMedia.twitter}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -223,14 +224,14 @@ export function ProfileInfoCard({ profile }: ProfileInfoCardProps) {
                   <div className="font-medium">Facebook</div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Globe className="w-4 h-4" />
-                    <a 
+                    <Link 
                       href={profile.socialMedia.facebook} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
                       {profile.socialMedia.facebook}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}

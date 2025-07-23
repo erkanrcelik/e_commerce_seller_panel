@@ -1,12 +1,12 @@
 import api from '@/lib/axios';
 import type {
-    CreateProductData,
-    ImageUploadResponse,
-    Product,
-    ProductListParams,
-    ProductListResponse,
-    ProductStats,
-    UpdateProductData
+  CreateProductData,
+  ImageUploadResponse,
+  Product,
+  ProductListParams,
+  ProductListResponse,
+  ProductStats,
+  UpdateProductData
 } from '@/types/seller-product';
 
 /**
@@ -26,7 +26,7 @@ export class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error('Get products API error:', error);
+      console.error('Error fetching products:', error);
       throw error;
     }
   }
@@ -41,7 +41,7 @@ export class ProductService {
       const response = await api.get<Product>(`/seller/products/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Get product by ID API error:', error);
+      console.error(`Error fetching product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -56,7 +56,7 @@ export class ProductService {
       const response = await api.post<Product>('/seller/products', productData);
       return response.data;
     } catch (error) {
-      console.error('Create product API error:', error);
+      console.error('Error creating product:', error);
       throw error;
     }
   }
@@ -72,7 +72,7 @@ export class ProductService {
       const response = await api.put<Product>(`/seller/products/${id}`, productData);
       return response.data;
     } catch (error) {
-      console.error('Update product API error:', error);
+      console.error(`Error updating product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -87,7 +87,7 @@ export class ProductService {
       const response = await api.delete<{ message: string }>(`/seller/products/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Delete product API error:', error);
+      console.error(`Error deleting product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -101,8 +101,8 @@ export class ProductService {
     try {
       const response = await api.put<Product>(`/seller/products/${id}/toggle-status`);
       return response.data;
-    } catch (error) {
-      console.error('Toggle product status API error:', error);
+    } catch (error) { 
+      console.error(`Error toggling status for product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -129,7 +129,7 @@ export class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error('Upload product image API error:', error);
+      console.error(`Error uploading image for product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export class ProductService {
       );
       return response.data;
     } catch (error) {
-      console.error('Delete product image API error:', error);
+      console.error(`Error deleting image ${imageKey} for product with ID ${id}:`, error);
       throw error;
     }
   }
@@ -161,7 +161,7 @@ export class ProductService {
       const response = await api.get<ProductStats>('/seller/products/stats/overview');
       return response.data;
     } catch (error) {
-      console.error('Get product stats API error:', error);
+      console.error('Error fetching product stats:', error);
       throw error;
     }
   }
@@ -180,7 +180,7 @@ export class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error('Bulk update product status API error:', error);
+      console.error('Error bulk updating product status:', error);
       throw error;
     }
   }
@@ -197,7 +197,7 @@ export class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error('Bulk delete products API error:', error);
+      console.error('Error bulk deleting products:', error);
       throw error;
     }
   }
@@ -219,7 +219,7 @@ export class ProductService {
       });
       return response.data as Blob;
     } catch (error) {
-      console.error('Export products API error:', error);
+      console.error('Error exporting products:', error);
       throw error;
     }
   }
@@ -251,7 +251,7 @@ export class ProductService {
       });
       return response.data;
     } catch (error) {
-      console.error('Import products API error:', error);
+      console.error('Error importing products:', error);
       throw error;
     }
   }

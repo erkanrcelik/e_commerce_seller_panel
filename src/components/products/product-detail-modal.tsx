@@ -5,25 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProductService, type Product } from '@/services';
 import {
-    Calendar,
-    DollarSign,
-    Edit,
-    Package,
-    Star,
-    Tag,
-    ToggleLeft,
-    ToggleRight,
-    Trash2
+  Calendar,
+  DollarSign,
+  Edit,
+  Package,
+  Star,
+  Tag,
+  ToggleLeft,
+  ToggleRight,
+  Trash2
 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from '../ui/dialog';
 
 /**
@@ -213,7 +213,6 @@ export function ProductDetailModal({
    */
   const fetchProductAnalytics = () => {
     // Analytics functionality can be implemented here
-    console.log('Fetching analytics for product:', product?._id);
   };
 
   // Fetch product details when modal opens or productId changes

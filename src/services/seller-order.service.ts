@@ -1,14 +1,14 @@
 
 import api from '@/lib/axios';
 import type {
-    AttentionRequiredOrder,
-    Order,
-    OrderListParams,
-    OrderListResponse,
-    OrderStats,
-    RevenueAnalyticsResponse,
-    UpdateOrderNotesData,
-    UpdateOrderStatusData
+  AttentionRequiredOrder,
+  Order,
+  OrderListParams,
+  OrderListResponse,
+  OrderStats,
+  RevenueAnalyticsResponse,
+  UpdateOrderNotesData,
+  UpdateOrderStatusData
 } from '@/types/seller-order';
 
 /**
@@ -28,7 +28,7 @@ export class OrderService {
       });
       return response.data;
     } catch (error) {
-      console.error('Get orders API error:', error);
+      console.error('Error fetching orders:', error);
       throw error;
     }
   }
@@ -43,7 +43,7 @@ export class OrderService {
       const response = await api.get<Order>(`/seller/orders/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Get order by ID API error:', error);
+      console.error(`Error fetching order with ID ${id}:`, error);
       throw error;
     }
   }
@@ -59,7 +59,7 @@ export class OrderService {
       const response = await api.put<Order>(`/seller/orders/${id}/status`, statusData);
       return response.data;
     } catch (error) {
-      console.error('Update order status API error:', error);
+      console.error(`Error updating status for order with ID ${id}:`, error);
       throw error;
     }
   }
@@ -75,7 +75,7 @@ export class OrderService {
       const response = await api.put<Order>(`/seller/orders/${id}/notes`, notesData);
       return response.data;
     } catch (error) {
-      console.error('Update order notes API error:', error);
+      console.error(`Error updating notes for order with ID ${id}:`, error);
       throw error;
     }
   }
@@ -92,7 +92,7 @@ export class OrderService {
       });
       return response.data;
     } catch (error) {
-      console.error('Get attention required orders API error:', error);
+      console.error('Error fetching attention required orders:', error);
       throw error;
     }
   }
@@ -110,7 +110,7 @@ export class OrderService {
       });
       return response.data;
     } catch (error) {
-      console.error('Get revenue analytics API error:', error);
+      console.error('Error fetching revenue analytics:', error);
       throw error;
     }
   }
@@ -124,7 +124,7 @@ export class OrderService {
       const response = await api.get<OrderStats>('/seller/orders/stats/overview');
       return response.data;
     } catch (error) {
-      console.error('Get order stats API error:', error);
+      console.error('Error fetching order stats:', error);
       throw error;
     }
   }

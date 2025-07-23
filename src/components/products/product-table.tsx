@@ -3,40 +3,41 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { type Product } from '@/services';
 import {
-    Edit,
-    Eye,
-    MoreHorizontal,
-    Package,
-    Plus,
-    Star,
-    ToggleLeft,
-    ToggleRight,
-    Trash2,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Package,
+  Plus,
+  Star,
+  ToggleLeft,
+  ToggleRight,
+  Trash2,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -142,10 +143,12 @@ export function ProductTable({
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
                           {product.imageUrls && product.imageUrls.length > 0 ? (
-                            <img
+                            <Image
                               src={product.imageUrls[0]}
                               alt={product.name}
-                              className="w-8 h-8 object-cover rounded"
+                              width={32}
+                              height={32}
+                              className="object-cover rounded"
                             />
                           ) : (
                             <Package className="w-5 h-5 text-gray-400" />

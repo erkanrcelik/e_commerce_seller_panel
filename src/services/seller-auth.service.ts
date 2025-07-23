@@ -54,12 +54,11 @@ export class AuthService {
         platform: 'seller' // seller platform for seller panel
       });
       
-      console.log('Login response:', response.data);
+
       
       const { accessToken, refreshToken } = response.data;
 
-      console.log('Access token:', accessToken);
-      console.log('Refresh token:', refreshToken);
+
 
       // Store tokens in cookies
       setAuthToken(accessToken);
@@ -67,7 +66,6 @@ export class AuthService {
         setRefreshToken(refreshToken);
       }
 
-      console.log('Tokens stored in cookies');
 
       return response.data;
     } catch (error) {

@@ -3,20 +3,20 @@ import { AxiosResponse } from 'axios';
 import { handleApiError } from '@/lib/api-error';
 import api from '@/lib/axios';
 import type {
-    DashboardActivitiesParams,
-    DashboardActivity,
-    DashboardCharts,
-    DashboardChartsParams,
-    DashboardPerformance,
-    DashboardStats
+  DashboardActivitiesParams,
+  DashboardActivity,
+  DashboardCharts,
+  DashboardChartsParams,
+  DashboardPerformance,
+  DashboardStats
 } from '@/types/seller-dashboard';
 import {
-    DashboardActivitiesParamsSchema,
-    DashboardActivitySchema,
-    DashboardChartsParamsSchema,
-    DashboardChartsSchema,
-    DashboardPerformanceSchema,
-    DashboardStatsSchema,
+  DashboardActivitiesParamsSchema,
+  DashboardActivitySchema,
+  DashboardChartsParamsSchema,
+  DashboardChartsSchema,
+  DashboardPerformanceSchema,
+  DashboardStatsSchema,
 } from '@/types/seller-dashboard';
 
 /**
@@ -37,19 +37,11 @@ export class DashboardService {
         `${this.BASE_URL}/stats`
       );
 
-      // Debug: Log the actual API response
-      console.log('Dashboard API Response:', JSON.stringify(response.data, null, 2));
-      
-      // Debug: Log specific revenue structure
-      if (response.data && typeof response.data === 'object' && 'revenue' in response.data) {
-        console.log('Revenue structure:', JSON.stringify((response.data as { revenue?: unknown })?.revenue, null, 2));
-      }
-
       // Validate response data with Zod
       const validatedData = DashboardStatsSchema.parse(response.data);
       return validatedData;
     } catch (error) {
-      console.error('Dashboard validation error:', error);
+      console.error('Error fetching dashboard stats:', error);
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
     }
@@ -85,6 +77,7 @@ export class DashboardService {
 
       return validatedData;
     } catch (error) {
+      console.error('Error fetching dashboard activities:', error);
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
     }
@@ -116,6 +109,7 @@ export class DashboardService {
       const validatedData = DashboardChartsSchema.parse(response.data);
       return validatedData;
     } catch (error) {
+      console.error('Error fetching dashboard charts:', error);
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
     }
@@ -136,6 +130,7 @@ export class DashboardService {
       const validatedData = DashboardPerformanceSchema.parse(response.data);
       return validatedData;
     } catch (error) {
+      console.error('Error fetching dashboard performance:', error);
       const apiError = handleApiError(error);
       throw new Error(apiError.message);
     }

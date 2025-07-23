@@ -55,8 +55,6 @@ const COOKIE_CONFIG = {
  * Set authentication token in cookie
  */
 export const setAuthToken = (token: string) => {
-  console.log('Setting auth token in cookie:', token);
-  console.log('Cookie config:', COOKIE_CONFIG);
   
   Cookies.set(COOKIE_CONFIG.tokenName, token, {
     expires: COOKIE_CONFIG.expires,
@@ -66,14 +64,13 @@ export const setAuthToken = (token: string) => {
     path: '/',
   });
   
-  console.log('Auth token cookie set');
+      
 };
 
 /**
  * Set refresh token in cookie
  */
 export const setRefreshToken = (token: string) => {
-  console.log('Setting refresh token in cookie:', token);
   
   Cookies.set(COOKIE_CONFIG.refreshTokenName, token, {
     expires: COOKIE_CONFIG.expires * 2, // Refresh token lasts longer
@@ -84,7 +81,6 @@ export const setRefreshToken = (token: string) => {
     httpOnly: false, // Note: Can't set httpOnly from client-side
   });
   
-  console.log('Refresh token cookie set');
 };
 
 /**
@@ -92,7 +88,6 @@ export const setRefreshToken = (token: string) => {
  */
 export const getAuthToken = (): string | undefined => {
   const token = Cookies.get(COOKIE_CONFIG.tokenName);
-  console.log('Getting auth token from cookie:', token);
   return token;
 };
 
@@ -139,7 +134,8 @@ const tokenUtils = {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
       return JSON.parse(jsonPayload) as Record<string, unknown>;
-    } catch {
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
       return null;
     }
   },
@@ -179,7 +175,6 @@ const tokenUtils = {
 api.interceptors.request.use(
   config => {
     const token = getAuthToken();
-    console.log('Request interceptor - token:', token);
     
     if (token && token !== 'undefined') {
       // Check if token is about to expire (within 5 minutes)
@@ -188,13 +183,11 @@ api.interceptors.request.use(
         const refreshToken = getRefreshToken();
         if (refreshToken) {
           // This will be handled by response interceptor
-          // For now, continue with current token
-          console.warn('Token is expired, will attempt refresh on response');
+          // For now, continue with current token   
         }
       }
       
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set:', `Bearer ${token}`);
     }
     return config;
   },
@@ -256,6 +249,7 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
         } catch (refreshError) {
+          console.error('Error refreshing token:', refreshError);
           // Refresh failed - redirect to login
           removeAuthTokens();
           
