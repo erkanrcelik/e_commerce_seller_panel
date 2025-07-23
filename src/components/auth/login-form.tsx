@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { clearError, loginUser } from '@/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useToast } from '@/hooks/use-toast';
 import { loginSchema, type LoginFormData } from '@/utils/validation';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { AuthLayout } from '@/components/layout/auth-layout';
 
@@ -25,6 +27,7 @@ export function LoginForm() {
   const { status } = useAppSelector(state => state.auth);
   const { showSuccess, showError, showLoading, dismiss } = useToast();
   const isLoading = status === 'loading';
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -142,14 +145,30 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            {...register('password')} 
-            className={errors.password ? 'border-destructive' : ''}
-            disabled={isLoading}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              {...register('password')} 
+              className={errors.password ? 'border-destructive pr-10' : 'pr-10'}
+              disabled={isLoading}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
           {errors.password && (
             <p className="text-sm text-destructive">
               {errors.password.message}
