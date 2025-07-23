@@ -13,5 +13,5 @@ export default function ForgotPasswordPage() {
  */
 export const metadata = {
   title: 'Forgot Password',
-  description: 'Reset your password to regain access to your account.',
+  description: 'Reset your password to regain access to your seller account.',
 };

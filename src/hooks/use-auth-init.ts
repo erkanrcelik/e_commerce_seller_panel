@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { getUserProfile, initializeAuth } from '@/features/auth/authSlice';
+import { getUserProfile, initializeAuth, refreshToken } from '@/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { getAuthToken } from '@/lib/axios';
+import { getAuthToken, getRefreshToken } from '@/lib/axios';
 
 /**
  * Authentication initialization hook
@@ -19,14 +19,22 @@ export function useAuthInit() {
 
       // Check if we have a token
       const token = getAuthToken();
+      const refreshTokenValue = getRefreshToken();
 
       if (token && !user) {
         try {
           // Validate token and get user profile
           await dispatch(getUserProfile()).unwrap();
-        } catch (error) {
-          // Token is invalid, user will be redirected by axios interceptor
-          console.warn('Token validation failed:', error);
+        } catch {
+          // Token is invalid, try to refresh
+          if (refreshTokenValue) {
+            try {
+              await dispatch(refreshToken()).unwrap();
+            } catch (refreshError) {
+              // Refresh failed, user will be redirected by axios interceptor
+              console.warn('Token refresh failed:', refreshError);
+            }
+          }
         }
       }
     };

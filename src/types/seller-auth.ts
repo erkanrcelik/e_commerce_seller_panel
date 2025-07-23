@@ -8,18 +8,20 @@ export type AuthStatus =
   | 'unauthenticated';
 
 /**
- * User data structure
+ * User data structure according to API documentation
  */
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'customer' | 'vendor';
+  role: 'admin' | 'customer' | 'seller';
   isEmailVerified: boolean;
+  isActive: boolean;
+  phoneNumber?: string;
   avatar?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
@@ -30,14 +32,26 @@ export interface AuthState {
   status: AuthStatus;
   error: string | null;
 }
-
+  
 /**
- * Login form data structure
+ * Login form data structure with platform
  */
 export interface LoginFormData {
   email: string;
   password: string;
   rememberMe?: boolean;
+}
+
+/**
+ * Register form data structure
+ */
+export interface RegisterFormData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  role?: 'admin' | 'seller' | 'customer';
 }
 
 /**
@@ -48,19 +62,29 @@ export interface ForgotPasswordFormData {
 }
 
 /**
- * Password reset form data
+ * Verify code form data for password reset
+ */
+export interface VerifyCodeFormData {
+  code: string;
+  email: string;
+}
+
+/**
+ * Password reset form data with token and email
  */
 export interface ResetPasswordFormData {
   password: string;
   confirmPassword: string;
   token: string;
+  email: string;
 }
 
 /**
- * Email verification data
+ * Email verification data with token and email
  */
 export interface EmailVerificationData {
   token: string;
+  email: string;
 }
 
 /**
@@ -80,4 +104,25 @@ export interface AuthError {
   message: string;
   field?: string;
   code?: string;
+}
+
+/**
+ * Refresh token data structure
+ */
+export interface RefreshTokenData {
+  refreshToken: string;
+}
+
+/**
+ * Resend verification data structure
+ */
+export interface ResendVerificationData {
+  email: string;
+}
+
+/**
+ * User info response structure
+ */
+export interface UserInfoResponse {
+  user: User;
 }

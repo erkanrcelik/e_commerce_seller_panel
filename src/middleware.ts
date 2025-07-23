@@ -6,17 +6,22 @@ import { NextRequest, NextResponse } from 'next/server';
 const PROTECTED_ROUTES = [
   '/',
   '/dashboard',
-  '/settings',
-  '/users',
-  '/categories',
-  '/vendors',
   '/campaigns',
+  '/orders',
+  '/products',
+  '/profile',
 ];
 
 /**
  * Routes that should redirect authenticated users away
  */
-const AUTH_ROUTES = ['/login', '/forgot-password'];
+const AUTH_ROUTES = [
+  '/login',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/verify-code' // Added
+];
 
 /**
  * Authentication middleware
@@ -25,7 +30,7 @@ const AUTH_ROUTES = ['/login', '/forgot-password'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(
-    process.env.NEXT_PUBLIC_TOKEN_COOKIE_NAME || 'auth_token'
+    process.env.NEXT_PUBLIC_TOKEN_COOKIE_NAME || 'accessToken'
   );
 
   const isAuthenticated = !!token;
@@ -37,10 +42,10 @@ export function middleware(request: NextRequest) {
   // If user is not authenticated and trying to access protected route
   if (!isAuthenticated && isProtectedRoute) {
     // Prevent redirect loop - if already on login page, don't redirect again
-    if (pathname === '/login') {
+    if (pathname === '/login' || pathname === '/forgot-password' || pathname === '/reset-password' || pathname === '/verify-email' || pathname === '/verify-code') {
       return NextResponse.next();
     }
-    
+
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

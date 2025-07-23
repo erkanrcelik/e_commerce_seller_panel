@@ -13,7 +13,7 @@ import { AuthLayout } from '@/components/layout/auth-layout';
 
 /**
  * Email verification form component
- * Handles email verification with token
+ * Handles email verification with token and email from URL parameters
  */
 export function VerifyEmailForm() {
   const dispatch = useAppDispatch();
@@ -24,21 +24,22 @@ export function VerifyEmailForm() {
   const [isVerified, setIsVerified] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  // Get token from URL params
+  // Get token and email from URL params
   const token = searchParams.get('token');
+  const email = searchParams.get('email');
 
   useEffect(() => {
     // Auto-verify email when component mounts
-    if (token && !isVerifying && !isVerified && !isError) {
+    if (token && email && !isVerifying && !isVerified && !isError) {
       void handleVerifyEmail();
     }
-  }, [token, isVerifying, isVerified, isError]);
+  }, [token, email, isVerifying, isVerified, isError]);
 
   /**
    * Handle email verification
-   */
+   */ 
   const handleVerifyEmail = async () => {
-    if (!token) return;
+    if (!token || !email) return;
 
     let loadingToastId: string | number | undefined;
 
@@ -52,8 +53,8 @@ export function VerifyEmailForm() {
         description: 'Please wait while we verify your email address',
       });
 
-      // Dispatch verify email action
-      const result = await dispatch(verifyEmail(token));
+      // Dispatch verify email action with token and email
+      const result = await dispatch(verifyEmail({ token, email }));
 
       // Dismiss loading toast
       if (loadingToastId) dismiss(loadingToastId);
@@ -99,48 +100,100 @@ export function VerifyEmailForm() {
       console.error('Email verification error:', error);
       setIsError(true);
       showError({
-        message: 'Unexpected error',
-        description: 'Something went wrong. Please try again.',
+        message: 'Email verification failed',
+        description: 'An unexpected error occurred. Please try again.',
+        action: {
+          label: 'Try again',
+          onClick: () => {
+            window.location.reload();
+          },
+        },
       });
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const footerContent = (
-    <>
-      Already have an account?{' '}
-      <Link
-        href="/login"
-        className="underline underline-offset-4 hover:text-primary"
-      >
-        Sign in
-      </Link>
-    </>
-  );
-
-  // If no token is provided, show error
-  if (!token) {
+  // If no token or email provided, show error
+  if (!token || !email) {
     return (
       <AuthLayout
         title="Invalid Verification Link"
-        subtitle="The email verification link is invalid or has expired"
-        footerContent={footerContent}
+        subtitle="The verification link is invalid or has expired"
       >
-        <div className="space-y-4">
-          <div className="rounded-lg bg-destructive/10 p-4">
-            <p className="text-sm text-destructive">
-              The email verification link is invalid or has expired. Please check your email for a valid verification link.
+        <div className="w-full max-w-md mx-auto">
+          <div className="text-center">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              The verification link is invalid or has expired. Please check your email for a valid link.
+            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Note:</strong> For testing purposes, the verification code is always <strong>1234</strong>.
+              </p>
+            </div>
+            <Button asChild>
+              <Link href="/login">Back to Login</Link>
+            </Button>
+          </div>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  // Show verification status
+  if (isVerified) {
+    return (
+      <AuthLayout
+        title="Email Verified!"
+        subtitle="Your email address has been successfully verified"
+      >
+        <div className="w-full max-w-md mx-auto text-center">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Your email address has been successfully verified. You can now sign in to your account.
             </p>
           </div>
+          <Button asChild>
+            <Link href="/login">Sign In</Link>
+          </Button>
+        </div>
+      </AuthLayout>
+    );
+  }
 
-          <div className="text-center space-y-2">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/login')}
-              className="w-full"
-            >
-              Go to Sign In
+  if (isError) {
+    return (
+      <AuthLayout
+        title="Verification Failed"
+        subtitle="We couldn't verify your email address"
+      >
+        <div className="w-full max-w-md mx-auto text-center">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              We couldn't verify your email address. The link may be invalid or expired.
+            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Note:</strong> For testing purposes, the verification code is always <strong>1234</strong>.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Button asChild>
+              <Link href="/login">Back to Login</Link>
+            </Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Try Again
             </Button>
           </div>
         </div>
@@ -149,99 +202,25 @@ export function VerifyEmailForm() {
   }
 
   // Show loading state
-  if (isVerifying) {
-    return (
-      <AuthLayout
-        title="Verifying Email"
-        subtitle="Please wait while we verify your email address"
-        footerContent={footerContent}
-      >
-        <div className="space-y-4">
-          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              We're verifying your email address. This may take a few moments...
-            </p>
-          </div>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Show success state
-  if (isVerified) {
-    return (
-      <AuthLayout
-        title="Email Verified!"
-        subtitle="Your email address has been successfully verified"
-        footerContent={footerContent}
-      >
-        <div className="space-y-4">
-          <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-            <p className="text-sm text-green-700 dark:text-green-300">
-              Your email address has been verified successfully! You can now sign in to your account.
-            </p>
-          </div>
-
-          <div className="text-center">
-            <Button
-              onClick={() => router.push('/login')}
-              className="w-full"
-            >
-              Sign In
-            </Button>
-          </div>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Show error state
-  if (isError) {
-    return (
-      <AuthLayout
-        title="Verification Failed"
-        subtitle="We couldn't verify your email address"
-        footerContent={footerContent}
-      >
-        <div className="space-y-4">
-          <div className="rounded-lg bg-destructive/10 p-4">
-            <p className="text-sm text-destructive">
-              The email verification link is invalid or has expired. Please check your email for a new verification link.
-            </p>
-          </div>
-
-          <div className="text-center space-y-2">
-            <Button
-              variant="outline"
-              onClick={() => window.location.reload()}
-              className="w-full"
-            >
-              Try Again
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push('/login')}
-              className="w-full"
-            >
-              Go to Sign In
-            </Button>
-          </div>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Default state (shouldn't reach here)
   return (
     <AuthLayout
-      title="Email Verification"
+      title="Verifying Email..."
       subtitle="Please wait while we verify your email address"
-      footerContent={footerContent}
     >
-      <div className="space-y-4">
-        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Verifying your email address...
+      <div className="w-full max-w-md mx-auto text-center">
+        <div className="mb-6">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">
+            Please wait while we verify your email address.
+          </p>
+        </div>
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Note:</strong> For testing purposes, the verification code is always <strong>1234</strong>.
           </p>
         </div>
       </div>

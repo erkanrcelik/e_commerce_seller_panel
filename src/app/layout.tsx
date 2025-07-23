@@ -14,30 +14,34 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'playableFactory - Digital Experiences',
+  title: 'PlayableFactory Seller Panel',
   description:
-    'Create innovative and engaging digital solutions with exceptional quality and cutting-edge technology.',
+    'Professional seller dashboard for managing products, campaigns, orders, and store operations with advanced analytics and marketing tools.',
   keywords: [
-    'digital experiences',
-    'innovative solutions',
-    'technology',
-    'premium digital',
-    'playable',
+    'seller panel',
+    'ecommerce management',
+    'product management',
+    'campaign management',
+    'order management',
+    'store analytics',
+    'seller dashboard',
+    'online store',
+    'business management',
   ],
-  authors: [{ name: 'playableFactory Team' }],
+  authors: [{ name: 'PlayableFactory Team' }],
   robots: 'index, follow',
   openGraph: {
-    title: 'playableFactory - Digital Experiences',
+    title: 'PlayableFactory Seller Panel',
     description:
-      'Create innovative and engaging digital solutions with exceptional quality and cutting-edge technology.',
+      'Professional seller dashboard for managing products, campaigns, orders, and store operations with advanced analytics and marketing tools.',
     type: 'website',
-    siteName: 'playableFactory',
+    siteName: 'PlayableFactory Seller Panel',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'playableFactory - Digital Experiences',
+    title: 'PlayableFactory Seller Panel',
     description:
-      'Create innovative and engaging digital solutions with exceptional quality and cutting-edge technology.',
+      'Professional seller dashboard for managing products, campaigns, orders, and store operations with advanced analytics and marketing tools.',
   },
 };
 

@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -24,17 +24,16 @@ import { AuthLayout } from '@/components/layout/auth-layout';
  */
 export function ForgotPasswordForm() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { status } = useAppSelector(state => state.auth);
-  const { showSuccess, showError, showLoading, showInfo, dismiss } = useToast();
+  const { showSuccess, showError, showLoading, dismiss } = useToast();
   const isLoading = status === 'loading';
-  const [isSuccess, setIsSuccess] = React.useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    getValues,
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -55,8 +54,8 @@ export function ForgotPasswordForm() {
 
       // Show loading toast
       loadingToastId = showLoading({
-        message: 'Sending reset instructions...',
-        description: 'Please wait while we process your request',
+        message: 'Sending reset email...',
+        description: 'Please wait while we send the password reset link',
       });
 
       // Dispatch forgot password action
@@ -67,33 +66,27 @@ export function ForgotPasswordForm() {
 
       if (forgotPassword.fulfilled.match(result)) {
         // Success
-        setIsSuccess(true);
         showSuccess({
-          message: 'Reset instructions sent!',
-          description: `If an account with ${data.email} exists, we've sent password reset instructions to your email.`,
-          duration: 6000,
-          action: {
-            label: 'Check Email',
-            onClick: () => {
-              // Open email client (this is a nice UX touch)
-              window.open('mailto:', '_blank');
-            },
-          },
+          message: 'Reset email sent!',
+          description: 'We\'ve sent a verification code to your email address. Please check your inbox.',
+          duration: 5000,
         });
+        
+        // Reset form
         reset();
+        
+        // Redirect to verify code page with email
+        router.push(`/verify-code?email=${encodeURIComponent(data.email)}`);
       } else if (forgotPassword.rejected.match(result)) {
-        // Error (but we might want to show success anyway for security)
-        const errorMessage =
-          result.payload?.message || 'Failed to send reset email';
+        // Error
+        const errorMessage = result.payload?.message || 'Failed to send reset email';
         showError({
-          message: 'Reset request failed',
+          message: 'Failed to send reset email',
           description: errorMessage,
           action: {
             label: 'Try again',
             onClick: () => {
-              // Focus on email field
-              const emailInput = document.getElementById('email');
-              emailInput?.focus();
+              window.location.reload();
             },
           },
         });
@@ -104,95 +97,61 @@ export function ForgotPasswordForm() {
 
       console.error('Forgot password error:', error);
       showError({
-        message: 'Unexpected error',
-        description: 'Something went wrong. Please try again.',
+        message: 'Failed to send reset email',
+        description: 'An unexpected error occurred. Please try again.',
+        action: {
+          label: 'Try again',
+          onClick: () => {
+            window.location.reload();
+          },
+        },
       });
     }
   };
-
-  /**
-   * Handle sending another email
-   */
-  const handleSendAnother = () => {
-    setIsSuccess(false);
-    // Get the last email value and pre-fill it
-    const lastEmail = getValues('email');
-    if (lastEmail) {
-      // You could also auto-submit here
-      showInfo({
-        message: 'Form ready',
-        description: `Ready to send another email to ${lastEmail}`,
-      });
-    }
-  };
-
-  const footerContent = (
-    <>
-      Remember your password?{' '}
-      <Link
-        href="/login"
-        className="underline underline-offset-4 hover:text-primary"
-      >
-        Sign in
-      </Link>
-    </>
-  );
 
   return (
     <AuthLayout
-      title="Forgot your password?"
+      title="Forgot Password"
       subtitle="Enter your email address and we'll send you a link to reset your password"
-      footerContent={footerContent}
     >
-      {!isSuccess ? (
-        <form
-          onSubmit={e => {
-            void handleSubmit(onSubmit)(e);
-          }}
-          className="space-y-4"
-        >
-          {/* Email Field */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              {...register('email')}
-              className={errors.email ? 'border-destructive' : ''}
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send reset instructions'}
-          </Button>
-        </form>
-      ) : (
-        <div className="space-y-4">
-          <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-            <p className="text-sm text-green-700 dark:text-green-300">
-              If an account with that email exists, we&apos;ve sent password
-              reset instructions to your email address. Please check your inbox
-              and follow the instructions to reset your password.
-            </p>
-          </div>
-
-          <div className="text-center">
-            <Button
-              variant="outline"
-              onClick={handleSendAnother}
-              className="w-full"
-            >
-              Send another email
-            </Button>
-          </div>
+      <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="space-y-4">
+        {/* Static Code Notice */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Note:</strong> For testing purposes, the reset code is always <strong>1234</strong>.
+          </p>
         </div>
-      )}
+
+        {/* Email Field */}
+        <div className="space-y-2">
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Enter your email address"
+            {...register('email')}
+            disabled={isLoading}
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Sending Reset Email...' : 'Send Reset Email'}
+        </Button>
+
+        {/* Back to Login Link */}
+        <div className="text-center">
+          <Link
+            href="/login"
+            className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4"
+          >
+            Back to Sign In
+          </Link>
+        </div>
+      </form>
     </AuthLayout>
   );
 }

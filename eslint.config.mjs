@@ -47,7 +47,7 @@ export default tseslint.config(
       'no-var': 'error',
       'no-console': 'off', // Geliştirme için console.log'a izin ver
       'no-debugger': 'error',
-      'no-alert': 'warn',
+      'no-alert': 'off',
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',

@@ -25,8 +25,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
  */
 export const metadata = {
   title: {
-    template: '%s | E-Commerce Platform',
-    default: 'Authentication | E-Commerce Platform',
+    template: '%s | PlayableFactory Seller Panel',
+    default: 'Authentication | PlayableFactory Seller Panel',
   },
-  description: 'Secure authentication for your e-commerce account.',
+  description: 'Secure authentication for seller account management.',
 };
